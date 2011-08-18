@@ -1,0 +1,124 @@
+This is a simple instruction on how to set up a bare machine to deploying rails app using capistrano. Update will be dated once I have chance to try out more possibility.
+---------------------------------------
+
+Set up EC2
+1. Login to EC2 (http://aws.amazon.com/)
+2. Create "Key Pairs". This is a private key, and it can't be downloaded again. It's very important. Save it to [~/.ssh/<keyname>.pem]. Change permission to 400 by using [chmod 400 <keyname>.pem], or amazon doesn't accept.
+3. Create/Launch instance in EC2 or Simply choose AMI (Amazon Machine Images) [http://cloud.ubuntu.com/ami/]
+4. Create "Elastic IPs" to associate with instance
+5. Login the instance through SSH [ssh -i <keyname>.pem ubuntu@<ip/public dns>]
+========================================
+
+Adding account for ssh access without private key
+Taken from http://thekeesh.com/2011/05/setting-up-user-accounts-password-authentication-and-ssh-keys-on-a-new-ec2-instance/
+
+Assume from your previous section (login ssh using private key)
+1. sudo useradd -m <username>
+2. sudo passwd <username>
+3. sudo visudo
+4. add <username> to have root access under [root ALL=(ALL) ALL] by [<username> ALL=(ALL) ALL]
+5. sudo vim /etc/ssh/sshd_config
+6. change or uncomment [PasswordAuthentication yes]
+7. sudo /etc/init.d/ssh reload
+
+========================================
+
+Add your key to authorized_keys so that we don't have to type password when we login the remote via ssh
+
+1. generate key for your computer if it doesn't exists [ssh-keygen]
+2. copy your key content [cat ~/.ssh/id_rsa.pub] to remote host [~/.ssh/authorized_keys].
+3. don't forget your change permission authorized_keys to 600 
+
+
+========================================
+
+Setting Database server
+
+1. sudo apt-get install mysql-server, redis-server [, ...]
+
+
+========================================
+Setting RVM and Ruby
+Taken from http://blog.bigrocksoftware.com/2011/01/07/rvm-nginx-passenger-rails-3/
+
+1. Installing RVM [sudo apt-get install git curl build-essential vim libcurl4-openssl-dev]
+2. bash < <( curl http://rvm.beginrescueend.com/releases/rvm-install-head )
+3. [vim ~/.bashrc] and paste [[ -s "$HOME/.rvm/scripts/rvm" ]] && . "$HOME/.rvm/scripts/rvm"
+
+
+4. sudo apt-get install build-essential bison openssl libreadline6 libreadline6-dev \
+		curl git-core zlib1g zlib1g-dev libssl-dev libyaml-dev libsqlite3-0 libsqlite3-dev \
+		sqlite3 libxml2-dev libxslt-dev autoconf
+5. rvm package install zlib
+6. rvm package install openssl
+7. rvm install 1.9.2 --with-zlib-dir=$rvm_path/usr --with-openssl-dir=$rvm_path/usr
+8. rvm --create use 1.9.2@myapplication
+9. rvm --default use 1.9.2@myapplication
+10. ruby -v  # test it
+11. gem install rails --version = ...
+======================================
+Setting  nginx/apache + passenger [don't install nginx first, passenger will download and install nginx later]
+
+1. gem install passenger
+2. passenger will guide you through the whole process
+3. [sudo vim /etc/init/nginx.conf] and paste the following
+
+	description "Nginx HTTP Server"
+
+	start on filesystem
+	stop on runlevel [!2345]
+
+	respawn
+
+	exec /opt/nginx/sbin/nginx -g "daemon off;"
+	
+4. sudo shutdown -r now
+5. [sudo initctl list | grep nginx] to test the nginx
+
+======================================
+
+Pointing nginx to public folder to hosting directory
+
+1. sudo vim /opt/nginx/conf/nginx.conf
+	server {
+ 	   listen 80;
+ 	   server_name localhost;
+ 	   root /rails_apps/myapplication/public;   # <--- be sure to point to 'public'!
+ 	   passenger_enabled on;
+	}
+2. sudo service nginx restart
+
+======================================
+
+Setting up Capistrano in local machine
+Taken from https://github.com/capistrano/capistrano/wiki/2.x-From-The-Beginning
+
+1. gem install capistrano
+2. rails new <myapplication>
+3. capify .
+4. edit config/deploy.rb with following sample
+
+		set :application, "coolapp"
+		set :repository,  "ssh://ream@localhost/~/lab/git/repo.git"
+		
+		set :scm, :git
+		# Or: `accurev`, `bzr`, `cvs`, `darcs`, `git`, `mercurial`, `perforce`, `subversion` or `none`
+		set :use_sudo, false
+		set :deploy_to, "/Users/ream/lab/hosting/dummy"
+		default_run_options[:pty] = true 
+		
+		role :web, "localhost"                          # Your HTTP server, Apache/etc
+		role :app, "localhost"                          # This may be the same as your `Web` server
+		role :db,  "localhost", :primary => true # This is where Rails migrations will run
+
+5. make the nginx config file point to [deploy_to]/current/public 
+6. [cap deploy:setup] to setup the directory. Make sure you change the permission in hosting directory
+7. [cap deploy:check] to check if there is something wrong
+8. [cap deploy:update] to pull the code into directory
+9. login via ssh to create database and use [rake RAILS_ENV=production db:schema:load]
+10. testing [rails server -e production]
+11. cap deploy:start
+12. we can restart [cap deploy:restart]
+13. when everything works fine, we can skip the previous by using [cap deploy]
+
+Note: There is another simpler for configuring with passenger or RVM. Try to google it with some keywords like deploy rails with passengers, capistrano, rvm 
