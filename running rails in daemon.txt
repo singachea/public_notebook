@@ -1,0 +1,15 @@
+this is to run rails in daemon mode [useful for testing on the remote server]
+--------------------------------------
+Webrick:
+Run:  rails server -d
+Search: ps -e | grepy ruby
+Stop: kill -9 <pid>
+
+
+Thin:
+Run: thin start -d
+Run: bundle exec thin start -d
+Stop: thin stop
+Stop: bundle exec thin stop
+
+
