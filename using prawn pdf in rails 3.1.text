@@ -1,0 +1,49 @@
+The template doesn't work yet; it has to follow the instruction similar to iText.
+More document can be found at:
+https://github.com/Volundr/prawn-rails
+http://prawn.majesticseacreature.com/
+
+1.Gemfile:
+------------------------------------
+
+	gem 'prawn_rails'
+
+	==> bundle install
+
+
+
+2. Config mime type: [config/initializers/mime_types.rb]
+------------------------------------
+
+	# Add new mime types for use in respond_to blocks:
+	# Mime::Type.register "text/richtext", :rtf
+	# Mime::Type.register_alias "text/html", :iphone
+	Mime::Type.register_alias "application/pdf", :pdf
+
+
+
+
+3. Controller
+------------------------------------
+
+	def index
+		@message = "hello dude"
+		@name = params["name"]
+		respond_to do |format|
+		  format.pdf {render :layout => false}
+		  format.html
+		end
+	end
+
+
+
+
+4. View (just the same respective hierarchy: /app/views/<controller>/<action>.pdf.prawn)
+------------------------------------
+	prawn_document :force_download => true do |pdf|	
+		pdf.font_size 18
+		pdf.text_box "hello #{@name}, here is your message: #{@message}"
+	end
+
+
+
