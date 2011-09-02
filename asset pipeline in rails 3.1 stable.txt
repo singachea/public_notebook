@@ -1,0 +1,42 @@
+This is how to use asset pipeline in rails 3.1 stable with Compass
+-------------------------------------------------------------------
+
+	rails new <project>
+
+Add gem files here:
+
+	group :assets do
+	  gem 'sass-rails', "  ~> 3.1.0"
+	  gem 'coffee-rails', "~> 3.1.0"
+	  gem 'uglifier'
+	  gem 'compass'
+	end
+	
+In order for compass to load file, add the following initialized file: [config/initializers/load_sass.rb]
+
+	Rails.configuration.sass.tap do |config|
+	  config.load_paths << "#{Gem.loaded_specs['compass'].full_gem_path}/frameworks/compass/stylesheets"
+	end
+	
+To load separate stylesheet and javascript for respective controller, modify the view layouts as
+
+
+	<head>
+	  <title>Stable31</title>
+	  <%= stylesheet_link_tag    "application", params['controller'] %>
+	  <%= javascript_include_tag "application", params['controller'] %>
+	  <%= csrf_meta_tags %>
+	</head>
+
+For stylesheet, we need to do separate imports. (e.g. app/assets/stylesheets/homes.cs.scss)
+
+
+	@import "compass/css3/border-radius";
+	
+	.something_cool{		
+		@include border-radius();
+	}
+
+
+
+
