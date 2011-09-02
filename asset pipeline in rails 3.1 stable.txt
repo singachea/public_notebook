@@ -16,6 +16,7 @@ In order for compass to load file, add the following initialized file: [config/i
 
 	Rails.configuration.sass.tap do |config|
 	  config.load_paths << "#{Gem.loaded_specs['compass'].full_gem_path}/frameworks/compass/stylesheets"
+	  config.load_paths << "#{Gem.loaded_specs['compass'].full_gem_path}/frameworks/blueprint/stylesheets"
 	end
 	
 To load separate stylesheet and javascript for respective controller, modify the view layouts as
