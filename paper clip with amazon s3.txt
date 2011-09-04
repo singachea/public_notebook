@@ -1,0 +1,70 @@
+This is configure Amazon S3 with paper clip
+------------------------------------------------
+
+Login to Amazon and create s3 bucket at your choice [us, eu, sg, tokyo]
+
+Add gems in Gemfile
+
+	gem 'aws-s3'
+	gem 'paperclip'
+	
+
+Generate scaffold/model
+
+	rails g <model> <... model attributes ...> image_file_name:string image_file_type:string image_file_size:integer image_updated_at:datetime
+	
+Configure model in [app/models/<model>.rb]
+
+	has_attached_file :image, 
+          	          :styles => {:medium => "300x300", :thumb => "100x100"},
+	                  :storage => :s3,
+	                  :s3_credentials => "#{Rails.root}/config/s3.yml",
+	                  :s3_protocol => "https",
+	                  :path => ":attachment/:id/:style.:extension",
+					  #:url => ":attachment/:id/:style.:extension",   # if you target US server
+	                  :url  => ":s3_sg_url",  
+	                  :bucket => "<bucket_name>"
+
+Configure Amazon S3 credentials in [config/s3.yml]
+
+	development:
+	  bucket: <bucket_name>
+	  access_key_id: <access_key>
+	  secret_access_key: <access_secret>
+	test:
+	  bucket: <bucket_name>
+	  access_key_id: <access_key>
+	  secret_access_key: <access_secret>
+	production:
+	  bucket: <bucket_name>
+	  access_key_id: <access_key>
+	  secret_access_key: <access_secret>
+	
+
+Load initialization for Singapore bucket in [config/initializers/load_s3_singapore.rb], not necessary for US bucket (default bucket)
+
+
+	require 'aws/s3'
+
+	Paperclip.interpolates(:s3_sg_url) { |attachment, style|
+	  "#{attachment.s3_protocol(style)}://s3-ap-southeast-1.amazonaws.com/#{attachment.bucket_name}/#{attachment.path(style).gsub(%r{^/}, "")}"
+	}
+
+	AWS::S3::DEFAULT_HOST = "s3-ap-southeast-1.amazonaws.com"
+
+
+
+How to use form for file
+
+	form_for(@<model>, :html => {:multipart => true}) 
+
+	<div class="field">
+	  Image<br />
+	  <%= f.file_field :image %>
+	</div>
+	
+How to call the file back
+
+	<%= image_tag @<model>.image.url(:medium) %>
+
+
