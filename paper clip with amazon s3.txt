@@ -20,10 +20,29 @@ Configure model in [app/models/<model>.rb]
 	                  :storage => :s3,
 	                  :s3_credentials => "#{Rails.root}/config/s3.yml",
 	                  :s3_protocol => "https",
-	                  :path => ":attachment/:id/:style.:extension",
+	                  :path => ":attachment/:id/:style_:uid.:extension",
 					  #:url => ":attachment/:id/:style.:extension",   # if you target US server
 	                  :url  => ":s3_sg_url",  
 	                  :bucket => "<bucket_name>"
+	
+	Paperclip.interpolates :uid do |attachment, style|
+		attachment.instance.image_file_size.to_s + "_" + attachment.instance.created_at.to_i.to_s
+	end
+	
+(Optional) The uid may not be necessary, but it's just a precaution to avoid colliding in multiple apps using the same bucket. To implement the real UUID (universal unique id, we can implement it by creating another field for <model> such as "uuid", then save the uuid in that field). e.g
+
+	require 'securerandom' # for ruby 1.9.2
+
+	before_save :add_uuid
+
+	def add_uuid
+		self.uuid = SecureRandom.uuid
+	end
+
+	Paperclip.interpolates :uid do |attachment, style|
+		attachment.instance.uuid
+	end
+
 
 Configure Amazon S3 credentials in [config/s3.yml]
 
