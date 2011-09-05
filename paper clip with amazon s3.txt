@@ -19,7 +19,7 @@ Configure model in [app/models/<model>.rb]
           	          :styles => {:medium => "300x300", :thumb => "100x100"},
 	                  :storage => :s3,
 	                  :s3_credentials => "#{Rails.root}/config/s3.yml",
-	                  :s3_protocol => "https",
+	                  :s3_protocol => "http",  # "https" is also available
 	                  :path => ":attachment/:id/:style_:uid.:extension",
 					  #:url => ":attachment/:id/:style.:extension",   # if you target US server
 	                  :url  => ":s3_sg_url",  
