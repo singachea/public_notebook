@@ -87,3 +87,16 @@ How to call the file back
 	<%= image_tag @<model>.image.url(:medium) %>
 
 
+
+--------------------------------------------------------
+--------------------------------------------------------
+
+This is how to save file from url and put into paperclip folder
+
+	require 'open-uri'
+
+	<model>.<attribute> = <...>
+	<model>.image = open(<url>)
+	<model>.save
+
+
