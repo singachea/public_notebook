@@ -1,0 +1,45 @@
+This is how to run git hooks script on server
+---------------------------------------------------
+
+After initializing git, there are hooks (.git/hooks) which can be used to run script after some actions. For client side, we can use "post-commit". For server side, we can use "post-receive".
+
+
+On server machine:
+	mkdir project.git
+	cd project.git
+	git init --bare
+	cd hooks
+	mv post-receive.sample post-receive
+	vim post-receive
+	
+-------->
+
+	#!/bin/sh
+
+	#print whatever message you want to show
+	
+	cd /path/to/target/directory/project
+	unset GIT_DIR   #import line here
+	git fetch origin
+	git reset --hard origin/master
+	
+	# some script here like
+	# rake db:migrate RAILS_ENV=production
+	# rails s -e production
+	# thin start
+	# thin restart
+	# touch tmp/restart.txt (passenger)
+
+<--------
+
+On client machine
+	git clone ssh://<server address>/path/to/project.git
+ -Or
+	git remote add <remote name> ssh://<server address>/path/to/project.git
+	
+	cd project
+	<make change files and commit>
+	git push <remote name> master
+	
+	
+	
