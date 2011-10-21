@@ -8,6 +8,15 @@ AppHarbor is quite similar to heroku, but it supports for .NET environment.
 * Go back to Visual Studio and create MVC 3 (e.g. ASPMVC3)
 * Create a separate project to store data structure for entity framework (e.g. MyProjectDB). You have to always compile the project after making changes
 * Copy the connection string in MyProjectDB "app.config" to ASPMVC3 "web.config". There should be two connection strings; i.e. one for local and another remote db at app harbor
+
+	  <connectionStrings>
+	    <add name="SimpleDBEntities" connectionString="metadata=res://*/DBMOM.csdl|res://*/DBMOM.ssdl|res://*/DBMOM.msl;provider=System.Data.SqlClient;provider connection string=&quot;data source=.\sqlexpress;initial catalog=SimpleDB;integrated security=True;multipleactiveresultsets=True;App=EntityFramework&quot;" providerName="System.Data.EntityClient" />
+	  </connectionStrings>
+
+	  <connectionStrings>
+	    <add name="SimpleDBEntities" connectionString="metadata=res://*/DBMOM.csdl|res://*/DBMOM.ssdl|res://*/DBMOM.msl;provider=System.Data.SqlClient;provider connection string=&quot;Server=ca59309d-21b8-4ecf-9659-9f8200e02dad.sqlserver.sequelizer.com;Database=dbca59309d21b84ecf96599f8200e02dad;User ID=rpssrqacesityvgh;Password=[password here]&quot;" providerName="System.Data.EntityClient" />
+	  </connectionStrings>
+
 * Add database addons in AppHarbor to the app you are developing.
 * Copy connection string from app harbor to ASPMVC3 web.config
 ---> Note: App harbor will replace the connection string if it finds the same for connection string name in the config file. Therefore, you don't have to change anything for db alias in app harbor as you don't want replace your entity framework connection string.
@@ -16,6 +25,41 @@ AppHarbor is quite similar to heroku, but it supports for .NET environment.
 
 
 Tricks to develop Entity Framework (from DB -> model)
+-----------------------------------------------------
+
+		namespace MyProjectDB
+		{
+		    [MetadataType(typeof(MyModelMetaData))]
+		    public partial class MyModel
+		    {
+		        public dynamic getJSONAPI()
+		        {
+		            return new { jsonAttribute = myAttribute }; 
+		        }
+		    }
+
+		    public class MyModelMetaData
+		    {
+		        [Required]
+		        public string myAttribute { get; set; }
+		    }
+		}
 
 
 
+Inside controller
+------------------
+
+		public ActionResult Index()
+        {
+            dynamic modelSet = db.MyModels.ToList().Select(m => m.getJSONAPI());
+
+            return Json(modelSet, JsonRequestBehavior.AllowGet);
+        }
+         
+        public ActionResult Details(int id)
+        {
+            MyModel myModel = db.MyModels.Single(m => m.id == id);
+            
+            return Json(myModel.getJSONAPI(), JsonRequestBehavior.AllowGet);
+        }
