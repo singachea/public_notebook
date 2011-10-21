@@ -1,0 +1,21 @@
+This is how to develop the app with Cloud AppHarbor
+=====================================================
+
+AppHarbor is quite similar to heroku, but it supports for .NET environment.
+
+* Register an account for AppHarbor @ https://appharbor.com/
+* Create an app repo
+* Go back to Visual Studio and create MVC 3 (e.g. ASPMVC3)
+* Create a separate project to store data structure for entity framework (e.g. MyProjectDB). You have to always compile the project after making changes
+* Copy the connection string in MyProjectDB "app.config" to ASPMVC3 "web.config". There should be two connection strings; i.e. one for local and another remote db at app harbor
+* Add database addons in AppHarbor to the app you are developing.
+* Copy connection string from app harbor to ASPMVC3 web.config
+---> Note: App harbor will replace the connection string if it finds the same for connection string name in the config file. Therefore, you don't have to change anything for db alias in app harbor as you don't want replace your entity framework connection string.
+* Compile your project and push to app harbor.
+* Update your SQL database using script diff or Good tools like Atlantis Interactive (Atlantis Schema Insprector) 
+
+
+Tricks to develop Entity Framework (from DB -> model)
+
+
+
