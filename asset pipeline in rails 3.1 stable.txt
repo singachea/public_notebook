@@ -41,3 +41,9 @@ For stylesheet, we need to do separate imports. (e.g. app/assets/stylesheets/hom
 
 
 
+================ Delploy on Heroku ================
+
+Heroku doesn't automatically enable assets:precompiled. To fix this, open up config/environment/production.rb and change update following line
+
+	config.assets.compile = true     (line 18: for rails 3.1.0)
+ 
