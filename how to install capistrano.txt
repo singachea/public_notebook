@@ -17,9 +17,10 @@ Assume from your previous section (login ssh using private key)
 2. sudo passwd <username>
 3. sudo visudo
 4. add <username> to have root access under [root ALL=(ALL) ALL] by [<username> ALL=(ALL) ALL]
-5. sudo vim /etc/ssh/sshd_config
-6. change or uncomment [PasswordAuthentication yes]
-7. sudo /etc/init.d/ssh reload
+5. change default shell to bash: sudo vim /etc/passwd, and change <username> shell to "bash"
+6. sudo vim /etc/ssh/sshd_config
+7. change or uncomment [PasswordAuthentication yes]
+8. sudo /etc/init.d/ssh reload
 
 ========================================
 
@@ -42,13 +43,14 @@ Setting RVM and Ruby
 Taken from http://blog.bigrocksoftware.com/2011/01/07/rvm-nginx-passenger-rails-3/
 
 1. Installing RVM [sudo apt-get install git curl build-essential vim libcurl4-openssl-dev]
-2. bash < <( curl http://rvm.beginrescueend.com/releases/rvm-install-head )
+2. sudo bash -s stable < <(curl -s https://raw.github.com/wayneeseguin/rvm/master/binscripts/rvm-installer )
 3. [vim ~/.bashrc] and paste [[ -s "$HOME/.rvm/scripts/rvm" ]] && . "$HOME/.rvm/scripts/rvm"
 
 
 4. sudo apt-get install build-essential bison openssl libreadline6 libreadline6-dev \
 		curl git-core zlib1g zlib1g-dev libssl-dev libyaml-dev libsqlite3-0 libsqlite3-dev \
 		sqlite3 libxml2-dev libxslt-dev autoconf
+5. add user to a group of "rvm": sudo usermod -a -G rvm <username>
 5. rvm package install zlib
 6. rvm package install openssl
 7. rvm install 1.9.2 --with-zlib-dir=$rvm_path/usr --with-openssl-dir=$rvm_path/usr
