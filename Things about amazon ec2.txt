@@ -1,0 +1,14 @@
+This is about Amazon EC2
+--------------------------
+
+* When an instance is stopped, the elastic ip will be de-associated, and thus we need to associate it back once we restart the instance
+
+* Increasing the size of instance:
+	- Go to volume, create snapshot from an instance
+	- Go to snapshot to see if the snapshot is ready, and create a new volume from that snapshot
+	- Stop (not terminate) the instance, and go back to volume to detach the old volume. 
+	- Attach the new volume (be sure to take note of the device in the old volume which is normally /dev/sda1)
+	- Re-associate the ip back and login to the instance through ssh
+	- Check to see hard disk size: df -h, and you should see it's still the same as old one. This is because we haven't mount it the space of new volume.
+	- use command: resize2fs /dev/xvda1
+	+ Cool... you're good to go
