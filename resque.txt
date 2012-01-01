@@ -1,0 +1,10 @@
+Resque queue
+-------------
+
+
+* In production, the resque might get crazy and it can't serve static asset. Simple solution is to use symlink:
+	
+	ln -s /usr/local/rvm/gems/ruby-1.9.2-p290@rails31/gems/resque-1.19.0/lib/resque/server/public /home/ream/webhost/sph/public/resque
+
+	But before that we need to find the resque lib,
+		gem which resque
