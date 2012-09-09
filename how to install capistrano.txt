@@ -82,10 +82,19 @@ Setting  nginx/apache + passenger [don't install nginx first, passenger will dow
 Pointing nginx to public folder to hosting directory
 
 1. sudo vim /opt/nginx/conf/nginx.conf
+
+	passenger_root /home/ream/.rvm/gems/ruby-1.9.3-head/gems/passenger-3.0.15;
+  passenger_ruby /home/ream/.rvm/wrappers/ruby-1.9.3-head/ruby;
+  passenger_spawn_method conservative;  # run in conservative mode
+  include       mime.types;
+
+
 	server {
  	   listen 80;
  	   server_name localhost;
+		 client_max_body_size 50M; # file size allowed to upload
  	   root /rails_apps/myapplication/public;   # <--- be sure to point to 'public'!
+     rails_env staging;  # environment to run
  	   passenger_enabled on;
 	}
 2. sudo service nginx restart
