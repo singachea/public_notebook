@@ -5,3 +5,10 @@ after delete, files might be opened by other processes. Check opening files:
 sudo lsof | grep deleted  #check lsof(list open file) and grep deleted
 
 ps aux | grep <pid>    ---> restart or kill service
+
+----------------------------------
+
+if we want to find info about a <pid>
+
+cd /proc/<pid>
+ls -la
