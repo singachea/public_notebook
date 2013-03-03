@@ -1,0 +1,67 @@
+There is time when you want to run a simple command on remote server with capistrano locally like this:
+
+----------
+cd ~/webhost/mytest
+git stash
+git pull origin master
+bundle install
+touch tmp/restart.txt
+----------
+
+But somehow, when you run from your local machine, the path is not included. Let's try this:
+
+user@remote: rvm info
+ruby-1.9.3-p392:
+
+  system:
+    uname:       "Linux precise64 3.2.0-23-generic #36-Ubuntu SMP Tue Apr 10 20:39:51 UTC 2012 x86_64 x86_64 x86_64 GNU/Linux"
+    system:      "ubuntu/12.04/x86_64"
+    bash:        "/bin/bash => GNU bash, version 4.2.24(1)-release (x86_64-pc-linux-gnu)"
+    zsh:         " => not installed"
+
+  rvm:
+    version:      "rvm 1.18.15 (stable) by Wayne E. Seguin <wayneeseguin@gmail.com>, Michal Papis <mpapis@gmail.com> [https://rvm.io/]"
+    updated:      "1 hour 42 minutes 7 seconds ago"
+
+  ruby:
+    interpreter:  "ruby"
+    version:      "1.9.3p392"
+    date:         "2013-02-22"
+    platform:     "x86_64-linux"
+    patchlevel:   "2013-02-22 revision 39386"
+    full_version: "ruby 1.9.3p392 (2013-02-22 revision 39386) [x86_64-linux]"
+
+  homes:
+    gem:          "/home/ream/.rvm/gems/ruby-1.9.3-p392"
+    ruby:         "/home/ream/.rvm/rubies/ruby-1.9.3-p392"
+
+  binaries:
+    ruby:         "/home/ream/.rvm/rubies/ruby-1.9.3-p392/bin/ruby"
+    irb:          "/home/ream/.rvm/rubies/ruby-1.9.3-p392/bin/irb"
+    gem:          "/home/ream/.rvm/rubies/ruby-1.9.3-p392/bin/gem"
+    rake:         "/home/ream/.rvm/gems/ruby-1.9.3-p392@global/bin/rake"
+
+  environment:
+    PATH:         "/home/ream/.rvm/gems/ruby-1.9.3-p392/bin:/home/ream/.rvm/gems/ruby-1.9.3-p392@global/bin:/home/ream/.rvm/rubies/ruby-1.9.3-p392/bin:/home/ream/.rvm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/opt/vagrant_ruby/bin"
+    GEM_HOME:     "/home/ream/.rvm/gems/ruby-1.9.3-p392"
+    GEM_PATH:     "/home/ream/.rvm/gems/ruby-1.9.3-p392:/home/ream/.rvm/gems/ruby-1.9.3-p392@global"
+    MY_RUBY_HOME: "/home/ream/.rvm/rubies/ruby-1.9.3-p392"
+    IRBRC:        "/home/ream/.rvm/rubies/ruby-1.9.3-p392/.irbrc"
+    RUBYOPT:      ""
+    gemset:       ""
+
+
+
+Look for PATH and GEM_PATH, copy them appropriately and put in simple deploy.rb of your capistrano project:
+
+server "localhost:2222", :web
+
+set :user, "ream"
+set :default_environment, {
+      'PATH' => "/home/ream/.rvm/gems/ruby-1.9.3-p392/bin:/home/ream/.rvm/gems/ruby-1.9.3-p392@global/bin:/home/ream/.rvm/rubies/ruby-1.9.3-p392/bin:/home/ream/.rvm/bin/:$PATH",
+      'GEM_PATH' => "/home/ream/.rvm/gems/ruby-1.9.3-p392:/home/ream/.rvm/gems/ruby-1.9.3-p392@global"
+    }
+default_run_options[:pty] = true
+task :mydeploy do
+  run "./deploy-script"
+end
